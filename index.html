@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Interactive university-level teaching tool for the mechanical events of the cardiac cycle." />
+  <title>Cardiac Mechanics | Mechanical Events of the Heart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to cardiac mechanics content</a>
+
+  <main id="mainContent" class="app">
+    <header class="page-header">
+      <div class="step">CARDIAC MECHANICS</div>
+      <h1>Mechanical Events of the Heart</h1>
+      <p class="header-summary">Explore valve states, pressure-driven blood movement, and the mechanical events of the cardiac cycle.</p>
+    </header>
+
+    <section class="mechanics-selector" aria-label="Cardiac cycle playback modes and stages">
+      <button id="btnStart" class="mechanics-btn start-btn active" type="button" aria-pressed="true">
+        <span class="mechanics-number play-badge" aria-hidden="true">▶</span>
+        <span class="mechanics-copy">
+          <span class="mechanics-stage">Full Cardiac Cycle</span>
+          <strong>Start</strong>
+          <small>Runs all 5 teaching stages continuously</small>
+        </span>
+      </button>
+
+      <button id="btnAtrialSystole" class="mechanics-btn active" type="button" aria-pressed="false" aria-current="step">
+        <span class="mechanics-number" aria-hidden="true">1</span>
+        <span class="mechanics-copy">
+          <span class="mechanics-stage">Stage - Atrial Systole</span>
+          <strong>Atrial Systole</strong>
+          <small>Final filling • EDV reached</small>
+        </span>
+      </button>
+
+      <button id="btnIsoContraction" class="mechanics-btn" type="button" aria-pressed="false">
+        <span class="mechanics-number" aria-hidden="true">2</span>
+        <span class="mechanics-copy">
+          <span class="mechanics-stage">Stage - Ventricular Systole</span>
+          <strong>Isovolumetric Contraction</strong>
+          <small>All valves closed • EDV constant</small>
+        </span>
+      </button>
+
+      <button id="btnEjection" class="mechanics-btn" type="button" aria-pressed="false">
+        <span class="mechanics-number" aria-hidden="true">3</span>
+        <span class="mechanics-copy">
+          <span class="mechanics-stage">Stage - Ventricular Systole</span>
+          <strong>Ventricular Ejection</strong>
+          <small>Rapid → reduced ejection</small>
+        </span>
+      </button>
+
+      <button id="btnIsoRelaxation" class="mechanics-btn" type="button" aria-pressed="false">
+        <span class="mechanics-number" aria-hidden="true">4</span>
+        <span class="mechanics-copy">
+          <span class="mechanics-stage">Stage - Ventricular Diastole</span>
+          <strong>Isovolumetric Relaxation</strong>
+          <small>All valves closed • ESV constant</small>
+        </span>
+      </button>
+
+      <button id="btnFilling" class="mechanics-btn" type="button" aria-pressed="false">
+        <span class="mechanics-number" aria-hidden="true">5</span>
+        <span class="mechanics-copy">
+          <span class="mechanics-stage">Stage - Ventricular Diastole</span>
+          <strong>Passive Ventricular Filling</strong>
+          <small>Rapid filling → diastasis</small>
+        </span>
+      </button>
+    </section>
+
+    <output id="modeStatus" class="sr-only" aria-live="polite">Full cardiac cycle mode.</output>
+
+    <section class="workspace">
+      <section class="heart-card" aria-label="Animated heart mechanics">
+        <div
+          id="heartVisual"
+          class="canvas-wrap"
+          role="img"
+          aria-describedby="heartVisualDescription"
+        >
+          <canvas id="heartCanvas" width="1120" height="1400" aria-hidden="true"></canvas>
+          <canvas id="flowCanvas" width="1120" height="1400" aria-hidden="true"></canvas>
+          <div id="loadingState" class="loading-state" role="status" aria-live="polite">Loading heart animation…</div>
+        </div>
+        <p id="heartVisualDescription" class="sr-only">
+          Animated front-view diagram of the heart showing chambers, major vessels, valve states, and blood-flow direction during the current cardiac-cycle stage.
+        </p>
+        <p class="annotation-note heart-annotation">In this front view, most of the aortic valve lies behind the pulmonary trunk, but a small anterior portion is visible and labelled <strong>Aortic valve</strong>.</p>
+      </section>
+
+      <!-- Column 2: Stage + Step explanation (restored single card) -->
+      <aside class="info-card explanation-card" aria-label="Physiology explanation">
+        <div class="eyebrow">SELECTED STAGE</div>
+        <h2 id="eventTitle">Atrial Systole</h2>
+        <div id="eventSubtitle" class="event-subtitle">(Late ventricular diastole)</div>
+        <div class="trigger-note">
+          <span class="trigger-label">▶ Triggered by</span>
+          <span id="triggerText">The sinoatrial node — the heart's pacemaker — initiates a new cardiac cycle, sending a depolarisation wave across both atria.</span>
+        </div>
+        <p id="eventDescription">Passive filling has brought the ventricles to roughly 75% of their end-diastolic volume, but atrial contraction is needed to complete filling. The sinoatrial node fires, atrial pressure rises above ventricular diastolic pressure, and the remaining volume is driven through the open AV valves. This stage ends when ventricular depolarisation triggers myocardial contraction, ventricular pressure rises above atrial pressure, and the AV valves close.</p>
+
+        <div class="divider"></div>
+
+        <div class="eyebrow">CURRENT STEP</div>
+        <h3 id="phaseTitle">Atrial Systole</h3>
+        <p id="phaseDescription">Both atria contract simultaneously, propelling blood through the open AV valves and completing filling to end-diastolic volume (EDV). The semilunar valves are closed throughout — no blood enters the great vessels during this phase.</p>
+        <div class="watch-note">
+          <span class="watch-label">👁 Watch the animation</span>
+          <span id="watchText">Watch the pulsing blue and red arrows — they show blood flowing simultaneously from both atria into the ventricles. Notice the arrows intensify as atrial contraction peaks, then fade as the stage ends.</span>
+        </div>
+      </aside>
+
+      <!-- Column 3: Cycle map + valve states + blood movement -->
+      <aside class="info-card events-card" aria-label="Cardiac cycle events overview">
+        <div class="eyebrow">CARDIAC CYCLE EVENTS</div>
+        <div class="snapshot-card">
+          <div id="snapshotMap" class="snapshot-map" role="group" aria-label="Five-stage cardiac cycle event map">
+            <img src="cycle_snapshot.png" alt="Cardiac cycle events arranged in a circular sequence: atrial systole, isovolumetric contraction, ventricular ejection, isovolumetric relaxation, and ventricular filling." />
+            <button class="stage-dot" data-stage="atrialSystole" type="button" aria-label="Play Atrial Systole only" aria-current="step"><span>1</span></button>
+            <button class="stage-dot" data-stage="isoContraction" type="button" aria-label="Play Isovolumetric Contraction only"><span>2</span></button>
+            <button class="stage-dot" data-stage="ejection" type="button" aria-label="Play Ventricular Ejection only"><span>3</span></button>
+            <button class="stage-dot" data-stage="isoRelaxation" type="button" aria-label="Play Isovolumetric Relaxation only"><span>4</span></button>
+            <button class="stage-dot" data-stage="filling" type="button" aria-label="Play Passive Ventricular Filling only"><span>5</span></button>
+          </div>
+          <p class="snapshot-caption">The glowing marker identifies the event currently being animated. Selecting a stage button or numbered marker loops only that stage; <strong>Start</strong> restores the full cycle.</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Valve states -->
+        <div class="eyebrow">VALVE STATES</div>
+        <div class="valves" aria-label="Valve states">
+          <div class="valve-box"><span>Tricuspid</span><strong id="tricuspidState"></strong></div>
+          <div class="valve-box"><span>Mitral</span><strong id="mitralState"></strong></div>
+          <div class="valve-box"><span>Pulmonary valve</span><strong id="pulmonaryState"></strong></div>
+          <div class="valve-box"><span>Aortic</span><strong id="aorticState"></strong></div>
+        </div>
+
+        <p class="mechanism-note"><strong>Key principle:</strong> Cardiac valves open and close passively in response to pressure gradients; the valves do not actively contract.</p>
+
+          <div class="flow-note">
+            <div class="eyebrow">BLOOD MOVEMENT</div>
+            <p id="flowText">Right atrium → tricuspid valve → right ventricle; left atrium → mitral valve → left ventricle.</p>
+          </div>
+        </aside>
+    </section>
+
+    <section class="controls" aria-label="Cardiac animation playback controls">
+      <div class="transport-row">
+        <button id="restart" type="button" aria-label="Restart current animation">↺ Restart</button>
+        <button id="stepBack" type="button" aria-label="Move backward 0.1 seconds in the animation">−0.1 s</button>
+        <button id="playPause" class="primary" type="button" aria-label="Pause full cardiac cycle">Pause</button>
+        <button id="stepForward" type="button" aria-label="Move forward 0.1 seconds in the animation">+0.1 s</button>
+
+        <label class="speed-control" for="speed">
+          <span>Speed</span>
+          <select id="speed">
+            <option value="1">1×</option>
+            <option value="0.7">0.7×</option>
+            <option value="0.5">0.5×</option>
+            <option value="0.3" selected>0.3×</option>
+            <option value="0.1">0.1×</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="timeline-context">
+        <strong id="timelineContextTitle">Animation time</strong>
+        <span id="timelineContextDetail">Full-cycle teaching playback</span>
+      </div>
+
+      <div class="scrubber-row compact-scrubber">
+        <span id="currentTimeLabel" class="timecode">0.00 s</span>
+        <input
+          id="timelineScrubber"
+          class="timeline-scrubber"
+          type="range"
+          min="0"
+          max="5400"
+          step="10"
+          value="0"
+          aria-label="Move through the cardiac animation"
+          aria-describedby="timelinePhysiologyNote"
+        />
+        <span id="totalTimeLabel" class="timecode">5.40 s</span>
+      </div>
+
+      <p id="timelinePhysiologyNote" class="control-hint"><strong>Teaching note:</strong> The seconds shown above are animation playback time, not physiological cardiac-cycle duration. Physiological cycle duration ≈ 60/heart rate; for example, at 100 beats/min (a calm resting dog), one cycle is about 0.6 s.</p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+
+  <footer class="source-attribution">
+    <span>
+      <strong>Source attribution:</strong> Heart animation adapted from
+      <a href="https://humanbiomedia.org/" target="_blank" rel="noopener noreferrer">Human Bio Media</a>
+      under the
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons Attribution 4.0 License (CC BY 4.0)</a>.
+    </span>
+    <span>
+      <strong>Original source:</strong>
+      <a href="https://humanbiomedia.org/" target="_blank" rel="noopener noreferrer">humanbiomedia.org</a>
+    </span>
+    <div class="creator-credit">Created by - Dr. Khalid Abdul Majeed, Department of Physiology, UVAS</div>
+  </footer>
+</body>
+</html>
